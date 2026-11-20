@@ -189,7 +189,11 @@
       </div>
       <div class="mb-6 grid grid-cols-7 gap-1" id="calendar"></div>
       <div class="mb-5" id="historyList"></div>
-      <button class="btn btn-outline" id="exportButton" type="button">Export to JSON</button>
+      <div class="flex gap-2">
+        <button class="btn btn-outline" id="importButton" type="button">Import JSON</button>
+        <button class="btn btn-outline" id="exportButton" type="button">Export to JSON</button>
+      </div>
+      <input id="importFileInput" type="file" accept="application/json,.json" hidden>
     </section>
   </main>
 
@@ -593,6 +597,46 @@
       calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1);
       selectedDate = null;
       renderCalendar();
+    });
+
+    const importFileInput = document.getElementById("importFileInput");
+
+    document.getElementById("importButton").addEventListener("click", () => {
+      importFileInput.value = "";
+      importFileInput.click();
+    });
+
+    importFileInput.addEventListener("change", async () => {
+      const file = importFileInput.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        window.alert("This file is too large. Choose a JSON file smaller than 5 MB.");
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(await file.text());
+        if (!Array.isArray(parsed) || parsed.some(session =>
+          !session || typeof session !== "object" || typeof session.date !== "string"
+        )) {
+          throw new Error("Invalid session export");
+        }
+
+        if (!window.confirm("Replace all existing sessions with this import?")) return;
+
+        saveSessions(parsed);
+        const latestSession = [...parsed].reverse().find(session => session.nextTask);
+        if (latestSession) {
+          localStorage.setItem(NEXT_TASK_KEY, latestSession.nextTask);
+        } else {
+          localStorage.removeItem(NEXT_TASK_KEY);
+        }
+        updateFirstTask();
+        selectedDate = null;
+        renderCalendar();
+      } catch (error) {
+        window.alert("Could not import this file. Choose a valid SessionZero JSON export.");
+      }
     });
 
     document.getElementById("exportButton").addEventListener("click", () => {
