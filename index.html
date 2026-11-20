@@ -16,6 +16,10 @@
       --app-accent: #4F46E5;
       --app-accent-content: #FFFFFF;
       --app-success: #16A34A;
+      --app-action: #00AD1A;
+      --app-action-hover: #009A16;
+      --app-action-active: #008314;
+      --app-action-content: #FFFFFF;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -58,9 +62,19 @@
     }
 
     body .btn.btn-primary {
-      background: var(--app-accent);
-      border-color: var(--app-accent);
-      color: var(--app-accent-content);
+      background: var(--app-action);
+      border-color: var(--app-action);
+      color: var(--app-action-content);
+    }
+
+    body .btn.btn-primary:hover:not(:disabled):not([disabled]) {
+      background: var(--app-action-hover);
+      border-color: var(--app-action-hover);
+    }
+
+    body .btn.btn-primary:active:not(:disabled):not([disabled]) {
+      background: var(--app-action-active);
+      border-color: var(--app-action-active);
     }
 
     body .btn-outline,
@@ -120,6 +134,59 @@
     .success-text {
       color: var(--app-success);
     }
+
+    .btn,
+    .input,
+    .textarea,
+    .checkbox,
+    .tabs,
+    .tab {
+      transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+    }
+
+    body .input,
+    body .textarea {
+      color: var(--app-text);
+      background: var(--app-surface);
+      border-color: var(--app-border);
+    }
+
+    body .select {
+      color: var(--app-text);
+      background: var(--app-surface);
+      border-color: var(--app-border);
+    }
+
+    body .input::placeholder,
+    body .textarea::placeholder {
+      color: var(--app-muted);
+    }
+
+    body .join .btn {
+      color: var(--app-muted);
+      background: var(--app-surface);
+      border-color: var(--app-border);
+    }
+
+    body .join .btn:checked {
+      color: var(--app-action-content);
+      background: var(--app-action);
+      border-color: var(--app-action);
+    }
+
+    body .join .btn:checked:hover {
+      background: var(--app-action-hover);
+      border-color: var(--app-action-hover);
+    }
+
+    body .join .btn:checked:active {
+      background: var(--app-action-active);
+      border-color: var(--app-action-active);
+    }
+
+    body .checkbox {
+      border-color: var(--app-border);
+    }
   </style>
 </head>
 <body class="min-h-screen">
@@ -145,6 +212,20 @@
         <textarea class="textarea textarea-bordered min-h-24 w-full" id="goalInput" placeholder="I am done when..."></textarea>
       </div>
 
+      <fieldset class="mb-5">
+        <legend class="label mb-2 font-bold">Session type</legend>
+        <div class="join w-full">
+          <input class="btn join-item flex-1" type="radio" name="timerMode" id="stopwatchMode" value="stopwatch" aria-label="Stopwatch" checked>
+          <input class="btn join-item flex-1" type="radio" name="timerMode" id="countdownMode" value="countdown" aria-label="Timer">
+        </div>
+      </fieldset>
+
+      <div class="mb-5 hidden" id="timerDurationField">
+        <label class="label mb-2 font-bold" for="timerDurationInput">Timer duration</label>
+        <input class="input input-bordered w-full" id="timerDurationInput" type="number" min="1" max="1440" step="1" value="25" aria-describedby="timerDurationHint">
+        <span class="mt-2 block text-xs text-base-content/60" id="timerDurationHint">Minutes</span>
+      </div>
+
       <button class="btn btn-primary w-full" id="startButton" type="button" disabled>Start session</button>
 
       <div class="mt-7">
@@ -156,8 +237,9 @@
     <section class="screen pt-10 text-center" id="timerScreen">
       <p class="mx-auto mb-8 max-w-[440px] text-xl leading-relaxed" id="timerGoal"></p>
       <p class="mb-10 text-6xl font-light tracking-tight tabular-nums" id="clock" aria-live="polite">00:00:00</p>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
         <button class="btn btn-outline" id="pauseButton" type="button">Pause</button>
+        <button class="btn btn-circle btn-outline size-11" id="subtractMinuteButton" type="button" aria-label="Subtract minutes" title="Subtract minutes">-</button>
         <button class="btn btn-outline" id="endButton" type="button">End</button>
       </div>
     </section>
@@ -231,6 +313,11 @@
     const nextTaskInput = document.getElementById("nextTaskInput");
     const finishedInput = document.getElementById("finishedInput");
     const saveButton = document.getElementById("saveButton");
+    const stopwatchMode = document.getElementById("stopwatchMode");
+    const countdownMode = document.getElementById("countdownMode");
+    const timerDurationField = document.getElementById("timerDurationField");
+    const timerDurationInput = document.getElementById("timerDurationInput");
+    const subtractMinuteButton = document.getElementById("subtractMinuteButton");
 
     let timer = readJSON(TIMER_KEY, null);
     let clockInterval = null;
@@ -266,6 +353,10 @@
 
       document.getElementById("startNav").classList.toggle("tab-active", name === "start");
       document.getElementById("historyNav").classList.toggle("tab-active", name === "history");
+
+      if (name !== "timer") {
+        document.title = "SessionZero";
+      }
     }
 
     function updateFirstTask() {
@@ -354,7 +445,22 @@
     }
 
     function updateClock() {
-      clock.textContent = formatTime(elapsedMilliseconds());
+      if (!timer) return;
+
+      if (timer.mode === "countdown") {
+        const remainingMilliseconds = timer.durationMilliseconds - elapsedMilliseconds();
+        if (remainingMilliseconds < 0) {
+          clock.textContent = "+" + formatTime(Math.abs(remainingMilliseconds));
+        } else {
+          clock.textContent = formatTime(remainingMilliseconds);
+        }
+      } else {
+        clock.textContent = formatTime(elapsedMilliseconds());
+      }
+
+      document.title = timer.paused
+        ? "Paused - " + clock.textContent + " - SessionZero"
+        : clock.textContent + " - SessionZero";
     }
 
     function startClock() {
@@ -369,12 +475,40 @@
       startButton.disabled = goalInput.value.trim().length === 0;
     });
 
+    [stopwatchMode, countdownMode].forEach(modeInput => {
+      modeInput.addEventListener("change", () => {
+        timerDurationField.classList.toggle("hidden", !countdownMode.checked);
+      });
+    });
+
+    subtractMinuteButton.addEventListener("click", () => {
+      if (!timer) return;
+      const answer = window.prompt("How many minutes should be subtracted?", "1");
+      if (answer === null) return;
+
+      const minutesToSubtract = Number(answer);
+      if (!Number.isFinite(minutesToSubtract) || minutesToSubtract <= 0) {
+        window.alert("Enter a number greater than 0.");
+        return;
+      }
+
+      timer.elapsedBeforePause = Math.max(0, elapsedMilliseconds() - minutesToSubtract * 60000);
+      timer.startedAt = Date.now();
+      saveTimer();
+      updateClock();
+    });
+
     startButton.addEventListener("click", () => {
       const goal = goalInput.value.trim();
       if (!goal) return;
 
+      const mode = countdownMode.checked ? "countdown" : "stopwatch";
+      const durationMinutes = Math.min(1440, Math.max(1, Number(timerDurationInput.value) || 25));
+
       timer = {
         goal,
+        mode,
+        durationMilliseconds: mode === "countdown" ? durationMinutes * 60000 : 0,
         startedAt: Date.now(),
         elapsedBeforePause: 0,
         paused: false
