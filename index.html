@@ -684,10 +684,100 @@
     html[data-theme="dark"] body .select,
     html[data-theme="dark"] .mode-option,
     html[data-theme="dark"] .timer-controls .btn,
-    html[data-theme="dark"] .history-actions .btn {
+    html[data-theme="dark"] .history-actions .btn,
+    html[data-theme="dark"] .delete-modal-box,
+    html[data-theme="dark"] .sidebar-theme,
+    html[data-theme="dark"] .theme-button {
       background: #252B27;
       border-color: #3A423C;
       color: #EDF2EE;
+    }
+
+    html[data-theme="dark"] .screen-heading p,
+    html[data-theme="dark"] .complete-heading p,
+    html[data-theme="dark"] .text-base-content\/60,
+    html[data-theme="dark"] .text-base-content\/70,
+    html[data-theme="dark"] #historyList p {
+      color: #AAB3AD;
+    }
+
+    html[data-theme="dark"] body .input::placeholder,
+    html[data-theme="dark"] body .textarea::placeholder {
+      color: #9DA69F;
+    }
+
+    html[data-theme="dark"] .sidebar-nav .tab-active {
+      background: #2B332E;
+      color: #FFFFFF;
+    }
+
+    html[data-theme="dark"] .mode-option {
+      color: #C3CBC6;
+    }
+
+    html[data-theme="dark"] .mode-switch input:checked + .mode-option {
+      border-color: var(--green);
+      background: var(--green);
+      color: #FFFFFF;
+    }
+
+    html[data-theme="dark"] #calendar .btn,
+    html[data-theme="dark"] #historyList .card,
+    html[data-theme="dark"] #previousTasksList .card,
+    html[data-theme="dark"] .completion-actions .delete-session {
+      border-color: #3A423C;
+      background: #252B27;
+      color: #EDF2EE;
+    }
+
+    html[data-theme="dark"] .modal-backdrop {
+      background: rgba(5, 8, 6, 0.72);
+    }
+
+    html[data-theme="dark"] body .btn,
+    html[data-theme="dark"] body .tab,
+    html[data-theme="dark"] body .previous-task-select {
+      color: #EDF2EE;
+      border-color: #3A423C;
+      background: #252B27;
+    }
+
+    html[data-theme="dark"] body .btn-primary,
+    html[data-theme="dark"] body .primary-action,
+    html[data-theme="dark"] #pauseButton,
+    html[data-theme="dark"] #calendar .btn-primary {
+      border-color: var(--green);
+      background: var(--green) !important;
+      color: #FFFFFF !important;
+    }
+
+    html[data-theme="dark"] body .btn:disabled,
+    html[data-theme="dark"] body .btn[disabled] {
+      border-color: #343A36;
+      background: #232825 !important;
+      color: #7E8881 !important;
+      opacity: 0.65;
+    }
+
+    html[data-theme="dark"] #monthTitle,
+    html[data-theme="dark"] #calendar,
+    html[data-theme="dark"] #calendar div,
+    html[data-theme="dark"] #historyList,
+    html[data-theme="dark"] #historyList h3,
+    html[data-theme="dark"] #historyList p,
+    html[data-theme="dark"] #historyList article {
+      color: #EDF2EE;
+    }
+
+    html[data-theme="dark"] #calendar .btn {
+      background: #252B27;
+      color: #EDF2EE;
+    }
+
+    html[data-theme="dark"] #calendar .btn-primary,
+    html[data-theme="dark"] #calendar .btn-primary small {
+      background: var(--green) !important;
+      color: #FFFFFF !important;
     }
 
     #calendar {
@@ -1360,6 +1450,7 @@
 
     document.getElementById("lightThemeButton").addEventListener("click", () => {
       document.documentElement.removeAttribute("data-theme");
+      localStorage.setItem("sessionZero.theme", "light");
       document.getElementById("brandLogo").src = "lightmodelogo.png";
       document.querySelector('link[rel="icon"]').href = "lightmodelogo.png";
       document.getElementById("lightThemeButton").classList.add("active");
@@ -1368,6 +1459,7 @@
 
     document.getElementById("darkThemeButton").addEventListener("click", () => {
       document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("sessionZero.theme", "dark");
       document.getElementById("brandLogo").src = "sessionzerologo.png";
       document.querySelector('link[rel="icon"]').href = "sessionzerologo.png";
       document.getElementById("darkThemeButton").classList.add("active");
@@ -1381,12 +1473,14 @@
       const favicon = document.querySelector('link[rel="icon"]');
       if (isDark) {
         document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.style.colorScheme = "dark";
         brandLogo.src = "sessionzerologo.png";
         favicon.href = "sessionzerologo.png";
         document.getElementById("darkThemeButton").classList.add("active");
         document.getElementById("lightThemeButton").classList.remove("active");
       } else {
         document.documentElement.removeAttribute("data-theme");
+        document.documentElement.style.colorScheme = "light";
         brandLogo.src = "lightmodelogo.png";
         favicon.href = "lightmodelogo.png";
         document.getElementById("lightThemeButton").classList.add("active");
@@ -1394,8 +1488,13 @@
       }
     }
 
-    applyDetectedTheme(prefersDark.matches);
-    prefersDark.addEventListener("change", event => applyDetectedTheme(event.matches));
+    const savedTheme = localStorage.getItem("sessionZero.theme");
+    applyDetectedTheme(savedTheme ? savedTheme === "dark" : prefersDark.matches);
+    prefersDark.addEventListener("change", event => {
+      if (!localStorage.getItem("sessionZero.theme")) {
+        applyDetectedTheme(event.matches);
+      }
+    });
 
     function toDateKey(year, month, day) {
       return [
