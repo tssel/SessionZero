@@ -292,6 +292,7 @@
       font-size: 13px;
       font-weight: 650;
       text-align: left;
+      cursor: pointer;
     }
 
     .sidebar-nav .tab-active {
@@ -319,6 +320,7 @@
       border: 0;
       background: transparent;
       color: #9AA49E;
+      cursor: pointer;
     }
 
     .theme-button.active {
@@ -791,6 +793,25 @@
       background: #F7F9F8;
       color: #56615B;
       box-shadow: none;
+    }
+
+    #calendar .btn-calendar-day {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    #calendar .calendar-minutes {
+      position: absolute;
+      right: 0;
+      bottom: 4px;
+      left: 0;
+      font-size: 9px;
+      line-height: 1;
+      text-align: center;
     }
 
     #calendar .btn-primary {
@@ -1545,13 +1566,13 @@
         const dateKey = toDateKey(year, month, day);
         const button = document.createElement("button");
         button.type = "button";
-        button.className = "btn btn-ghost aspect-square h-auto min-h-0 p-0";
+        button.className = "btn btn-ghost btn-calendar-day aspect-square h-auto min-h-0 p-0";
         button.textContent = day;
 
         if (totals[dateKey]) {
           button.classList.add("btn-primary");
           const total = document.createElement("small");
-          total.className = "absolute bottom-1 text-[9px]";
+          total.className = "calendar-minutes";
           total.textContent = totals[dateKey] + "m";
           button.appendChild(total);
         }
