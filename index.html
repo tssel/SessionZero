@@ -314,6 +314,36 @@
       background: #FFFFFF;
     }
 
+    .sidebar-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .sidebar-footer .sidebar-theme {
+      margin-top: 0;
+      margin-left: 0;
+    }
+
+    .nsdr-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid #EEF0EE;
+      border-radius: 18px;
+      background: #FFFFFF;
+      color: #7A827D;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
     .theme-button {
       display: grid;
       height: 100%;
@@ -719,6 +749,7 @@
     html[data-theme="dark"] .history-actions .btn,
     html[data-theme="dark"] .delete-modal-box,
     html[data-theme="dark"] .sidebar-theme,
+    html[data-theme="dark"] .nsdr-button,
     html[data-theme="dark"] .theme-button {
       background: #252B27;
       border-color: #3A423C;
@@ -907,6 +938,11 @@
         display: none;
       }
 
+      .sidebar-footer {
+        margin-top: 0;
+        margin-left: 8px;
+      }
+
       .workspace {
         min-height: calc(100vh - 68px);
         padding: 28px 20px 40px;
@@ -964,13 +1000,18 @@
         </button>
       </nav>
 
-      <div class="sidebar-theme" aria-label="Theme">
-        <button class="theme-button active" id="lightThemeButton" type="button" aria-label="Light theme">
-          <span class="material-symbols-rounded">light_mode</span>
-        </button>
-        <button class="theme-button" id="darkThemeButton" type="button" aria-label="Dark theme">
-          <span class="material-symbols-rounded">dark_mode</span>
-        </button>
+      <div class="sidebar-footer">
+        <a class="nsdr-button" href="https://youtu.be/KHIbgSN2qAU" target="_blank" rel="noopener noreferrer" aria-label="Open NSDR">
+          NSDR
+        </a>
+        <div class="sidebar-theme" aria-label="Theme">
+          <button class="theme-button active" id="lightThemeButton" type="button" aria-label="Light theme">
+            <span class="material-symbols-rounded">light_mode</span>
+          </button>
+          <button class="theme-button" id="darkThemeButton" type="button" aria-label="Dark theme">
+            <span class="material-symbols-rounded">dark_mode</span>
+          </button>
+        </div>
       </div>
     </aside>
 
