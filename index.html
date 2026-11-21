@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="sessionzerologo.png">
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
   <style>
     :root {
@@ -508,6 +509,7 @@
       background: var(--green);
       border-radius: 999px;
     }
+
 
     #timerGoal {
       max-width: 520px;
@@ -1495,6 +1497,18 @@
       });
       saveSessions(sessions);
       localStorage.setItem(NEXT_TASK_KEY, nextTask);
+
+      if (window.confetti) {
+        const saveButtonRect = saveButton.getBoundingClientRect();
+        window.confetti({
+          particleCount: 110,
+          spread: 70,
+          origin: {
+            x: (saveButtonRect.left + saveButtonRect.width / 2) / window.innerWidth,
+            y: (saveButtonRect.top + saveButtonRect.height / 2) / window.innerHeight
+          }
+        });
+      }
 
       timer = null;
       localStorage.removeItem(TIMER_KEY);
