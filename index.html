@@ -634,6 +634,14 @@
       width: 100%;
     }
 
+    #importExportScreen {
+      max-width: 560px;
+    }
+
+    #importExportScreen .grid {
+      max-width: 360px;
+    }
+
     .history-header {
       display: flex;
       align-items: center;
@@ -1090,16 +1098,6 @@
             <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
             <span>Session History</span>
           </h2>
-          <div class="history-actions">
-            <button class="btn" id="exportButton" type="button">
-              <span class="material-symbols-rounded">upload</span>
-              <span>Export JSON</span>
-            </button>
-            <button class="btn" id="importButton" type="button">
-              <span class="material-symbols-rounded">download</span>
-              <span>Import JSON</span>
-            </button>
-          </div>
         </div>
 
         <div class="mb-4 flex items-center justify-between">
@@ -1113,6 +1111,24 @@
         </div>
         <div class="mb-6 grid grid-cols-7" id="calendar"></div>
         <div class="mb-5" id="historyList"></div>
+      </section>
+
+      <section class="screen" id="importExportScreen">
+        <div class="screen-heading">
+          <h2>Import / Export</h2>
+          <p>Back up or restore your SessionZero history</p>
+        </div>
+
+        <div class="grid gap-3">
+          <button class="btn primary-action w-full" id="exportButton" type="button">
+            <span class="material-symbols-rounded" aria-hidden="true">upload</span>
+            <span>Export JSON</span>
+          </button>
+          <button class="btn w-full" id="importButton" type="button">
+            <span class="material-symbols-rounded" aria-hidden="true">download</span>
+            <span>Import JSON</span>
+          </button>
+        </div>
         <input id="importFileInput" type="file" accept="application/json,.json" hidden>
       </section>
     </main>
@@ -1159,7 +1175,8 @@
       start: document.getElementById("startScreen"),
       timer: document.getElementById("timerScreen"),
       end: document.getElementById("endScreen"),
-      history: document.getElementById("historyScreen")
+      history: document.getElementById("historyScreen"),
+      importExport: document.getElementById("importExportScreen")
     };
 
     const goalInput = document.getElementById("goalInput");
@@ -1212,6 +1229,7 @@
 
       document.getElementById("startNav").classList.toggle("tab-active", name === "start");
       document.getElementById("historyNav").classList.toggle("tab-active", name === "history");
+      document.getElementById("sidebarImportExport").classList.toggle("tab-active", name === "importExport");
 
       if (name !== "timer") {
         document.title = "SessionZero";
@@ -1497,9 +1515,7 @@
     });
 
     document.getElementById("sidebarImportExport").addEventListener("click", () => {
-      renderCalendar();
-      showScreen("history");
-      document.getElementById("exportButton").focus();
+      showScreen("importExport");
     });
 
     document.getElementById("lightThemeButton").addEventListener("click", () => {
